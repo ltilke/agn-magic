@@ -27,7 +27,7 @@ class WavelengthWidget(QWidget):
 
         wavelengths = [["B", color_options.index("Blue")], ["V", color_options.index("Green")],
                        ["R", color_options.index("Red")], ["I", color_options.index("Gray")],
-                       ["G", color_options.index("Purple")]]
+                       ["G (Unavailable)", color_options.index("Purple")]]
 
         wavelength_groups = []
 
@@ -62,10 +62,32 @@ class DataWidget(QWidget):
             file_names, _ = dialog.getOpenFileNames(filter="Data Files (*.csv *.lc)")
             if file_names:
                 print(file_names)
+                for file_name in file_names:
+                    if file_name not in self.file_list:
+                        add_row(file_name)
+                        self.file_list[file_name] = {"Telescope": "", "Symbol": ""}
 
         select_files_button = QPushButton("Select Files")
         select_files_button.clicked.connect(file_dialog)
         outer_layout.addWidget(select_files_button)
+
+        def add_row(file_name):
+            num_rows = file_table.rowCount()
+            file_table.insertRow(num_rows)
+
+            symbols_combobox = QComboBox()
+            symbols_combobox_options = ["Point", "Circle", "Triangle", "Square", "Star", "Diamond", "Plus", "Cross", ]
+            symbols_combobox.addItems(symbols_combobox_options)
+            symbols_combobox.setCurrentIndex(0)
+
+            file_table.setCellWidget(num_rows, 0, QLabel(file_name))
+            file_table.setCellWidget(num_rows, 1, QLineEdit())
+            file_table.setCellWidget(num_rows, 2, symbols_combobox)
+            file_table.setCellWidget(num_rows, 3, QPushButton("Remove"))
+            file_table.update()
+
+        def remove_row():
+            pass
 
 
 class Window(QWidget):
