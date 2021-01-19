@@ -1,4 +1,5 @@
 import sys
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -6,6 +7,7 @@ from PyQt5.QtWidgets import (
     QGroupBox,
     QTableWidget,
     QTableWidgetItem,
+    QHeaderView,
     QFileDialog,
     QFormLayout,
     QLabel,
@@ -55,7 +57,30 @@ class DataWidget(QWidget):
         file_table = QTableWidget()
         file_table.setColumnCount(4)
         file_table.setHorizontalHeaderLabels(["File", "Telescope", "Symbol", "Remove"])
+        file_table_header = file_table.horizontalHeader()
+        file_table_header.setSectionResizeMode(0, QHeaderView.Stretch)  # alternatively: QHeaderView.ResizeToContents
+        file_table_header.setSectionResizeMode(1, QHeaderView.Stretch)
+        file_table_header.setSectionResizeMode(2, QHeaderView.Stretch)
+        file_table_header.setSectionResizeMode(3, QHeaderView.Stretch)
         outer_layout.addWidget(file_table)
+
+        def add_row(file_name):
+            num_rows = file_table.rowCount()
+            file_table.insertRow(num_rows)
+
+            symbols_combobox = QComboBox()
+            symbols_combobox_options = ["Point", "Circle", "Triangle", "Square", "Star", "Diamond", "Plus", "Cross", ]
+            symbols_combobox.addItems(symbols_combobox_options)
+            symbols_combobox.setCurrentIndex(0)
+
+            remove_button = QPushButton("Remove")
+            # remove_button.clicked.connect(remove_row)
+
+            file_table.setCellWidget(num_rows, 0, QLabel(file_name))
+            file_table.setCellWidget(num_rows, 1, QLineEdit())
+            file_table.setCellWidget(num_rows, 2, symbols_combobox)
+            file_table.setCellWidget(num_rows, 3, remove_button)
+            file_table.update()
 
         def file_dialog():
             dialog = QFileDialog()
@@ -71,23 +96,17 @@ class DataWidget(QWidget):
         select_files_button.clicked.connect(file_dialog)
         outer_layout.addWidget(select_files_button)
 
-        def add_row(file_name):
-            num_rows = file_table.rowCount()
-            file_table.insertRow(num_rows)
-
-            symbols_combobox = QComboBox()
-            symbols_combobox_options = ["Point", "Circle", "Triangle", "Square", "Star", "Diamond", "Plus", "Cross", ]
-            symbols_combobox.addItems(symbols_combobox_options)
-            symbols_combobox.setCurrentIndex(0)
-
-            file_table.setCellWidget(num_rows, 0, QLabel(file_name))
-            file_table.setCellWidget(num_rows, 1, QLineEdit())
-            file_table.setCellWidget(num_rows, 2, symbols_combobox)
-            file_table.setCellWidget(num_rows, 3, QPushButton("Remove"))
-            file_table.update()
-
-        def remove_row():
-            pass
+        # def save_inputs():
+        #     pass
+        #
+        # def remove_row():
+        #     print("here1")
+        #     row = file_table.indexAt(self.pos()).row()
+        #     print("here2")
+        #     # del self.file_list[str(file_table.itemAt(0, row))]
+        #     print("here3")
+        #     file_table.removeRow(row)
+        #     print(self.file_list)
 
 
 class Window(QWidget):
