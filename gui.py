@@ -25,11 +25,11 @@ class WavelengthWidget(QWidget):
         outer_layout = QHBoxLayout()
         self.setLayout(outer_layout)
 
-        color_options = ["Red", "Orange", "Yellow", "Green", "Cyan", "Blue", "Purple", "Pink", "Brown", "Gray"]
+        color_options = ["Red", "Yellow", "Green", "Cyan", "Blue", "Magenta", "Black"]
 
         wavelengths = [["B", color_options.index("Blue")], ["V", color_options.index("Green")],
-                       ["R", color_options.index("Red")], ["I", color_options.index("Gray")],
-                       ["G (Unavailable)", color_options.index("Purple")]]
+                       ["R", color_options.index("Red")], ["I", color_options.index("Gray")],]
+        # ["G (Unavailable)", color_options.index("Magenta")]]
 
         wavelength_groups = []
 
@@ -69,7 +69,7 @@ class DataWidget(QWidget):
             file_table.insertRow(num_rows)
 
             symbols_combobox = QComboBox()
-            symbols_combobox_options = ["Point", "Circle", "Triangle", "Square", "Star", "Diamond", "Plus", "Cross", ]
+            symbols_combobox_options = ["Point", "Circle", "Triangle", "Square", "Star", "Diamond", "Plus", "Cross"]
             symbols_combobox.addItems(symbols_combobox_options)
             symbols_combobox.setCurrentIndex(0)
 
@@ -115,8 +115,8 @@ class Window(QWidget):
         self.setWindowTitle("AGN Magic!")
 
         sources_line_edit = QLineEdit()
-        sources_line_edit.setPlaceholderText("Sources are comma-space delimited. "
-                                             "Make sure your text matches your data.")
+        # sources_line_edit.setPlaceholderText("Sources are comma-space delimited. "
+        #                                      "Make sure your text matches your data.")
 
         wavelength_widget = WavelengthWidget()
 
@@ -129,19 +129,19 @@ class Window(QWidget):
         legend_combobox.addItems(legend_combobox_options)
         legend_combobox.setCurrentIndex(0)
 
-        aspect_ratio_combobox = QComboBox()
-        aspect_ratio_combobox_options = ["Portrait", "Landscape", "Square"]
-        aspect_ratio_combobox.addItems(aspect_ratio_combobox_options)
-        aspect_ratio_combobox.setCurrentIndex(0)
+        # aspect_ratio_combobox = QComboBox()
+        # aspect_ratio_combobox_options = ["Portrait", "Landscape", "Square"]
+        # aspect_ratio_combobox.addItems(aspect_ratio_combobox_options)
+        # aspect_ratio_combobox.setCurrentIndex(0)
 
         form_layout = QFormLayout()
 
-        form_layout.addRow("Source(s):", sources_line_edit)
+        form_layout.addRow("Source:", sources_line_edit)
         form_layout.addRow("Wavelengths:", wavelength_widget)
         form_layout.addRow("Add Data:", data_widget)
         form_layout.addRow("Error Bars:", error_bars_checkbox)
         form_layout.addRow("Legend:", legend_combobox)
-        form_layout.addRow("Aspect Ratio:", aspect_ratio_combobox)
+        # form_layout.addRow("Aspect Ratio:", aspect_ratio_combobox)
         form_layout.addRow(QPushButton("Create Graph"), QLabel(""))
 
         self.setLayout(form_layout)
