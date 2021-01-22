@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import pandas as pd
 
 config = {
@@ -7,8 +8,8 @@ config = {
   "wavelengths": {"V": "Purple",
                   "R": "Red",
                   },
-  "files": {"C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 Photometry V+R.csv": ["Point", "SRO20"],
-            "C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 V+R AAVSO.csv": ["Diamond", "AAVSO"],
+  "files": {os.path.normpath("C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 Photometry V+R.csv"): ["Point", "SRO20"],
+            os.path.normpath("C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 V+R AAVSO.csv"): ["Diamond", "AAVSO"],
             },
   "error bars": False,
   "legend": "Top Right"
@@ -18,7 +19,7 @@ config = {
 class GraphDataframe:
     dataframe = pd.DataFrame
     wavelength = ""
-    file = ""
+    file = os.path
     format_string = ""
 
     def __init__(self, dataframe, wavelength, file):
@@ -55,17 +56,22 @@ class GraphDataframe:
 
 def make_dataframes():
     dataframes = []
-    for wavelength in config["wavelengths"]:
-        for file in config["files"]:
+    for wavelength in config["wavelengths"].keys():
+        for file in config["files"].keys():
             cols = [
                 "Timestamp (JD)",
                 "Filter",
                 config["source"] + " : Magnitude (Centroid)"
             ]
             df = pd.read_csv(file, skipinitialspace=True, names=cols)
-            clean_df = df.loc[df["Filter"] is wavelength]
-            dataframe = GraphDataframe(clean_df, wavelength, file)
-            dataframes.append(dataframe)
+
+            try:
+                clean_df = df.loc[df["Filter"] is wavelength]
+                dataframe = GraphDataframe(clean_df, wavelength, file)
+                dataframes.append(dataframe)
+            except KeyError:
+                pass
+
     return dataframes
 
 
@@ -94,10 +100,17 @@ def make_graph():
     #     for df in dataframes:
     #         plt.plot(df, fmt=df.format_string)
     legend_location = get_legend_location()
-    for wavelength in config["wavelengths"]:
+    for wavelength in config["wavelengths"].keys():
         plt.subplot()
+
         for dataframe in dataframes:
-            pass
+            if dataframe.wavelength is wavelength:
+                label = config["files"][dataframe.file][1]
+                plt.plot(dataframe, fmt=dataframe.format_string, label=label)
+
+        if legend_location != "none":
+            legend = plt.legend(loc=legend_location)
+            plt.show()
 
 
-make_dataframes()
+make_graph()
