@@ -9,7 +9,7 @@ config = {
                   "R": "Red",
                   },
   "files": {os.path.normpath("C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 Photometry V+R.csv"): ["Point", "SRO20"],
-            os.path.normpath("C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 V+R AAVSO.csv"): ["Diamond", "AAVSO"],
+            os.path.normpath("C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 AAVSO.csv"): ["Diamond", "AAVSO"],
             },
   "error bars": False,
   "legend": "Top Right"
@@ -20,38 +20,41 @@ class GraphDataframe:
     dataframe = pd.DataFrame
     wavelength = ""
     file = os.path
-    format_string = ""
+    color = ""
+    marker = ""
 
     def __init__(self, dataframe, wavelength, file):
         self.dataframe = dataframe
         self.wavelength = wavelength
         self.file = file
 
-        def make_format_string():
-            markers = {"Point": ".",
-                       "Circle": "o",
-                       "Triangle": "v",
-                       "Square": "s",
-                       "Star": "*",
-                       "Diamond": "d",
-                       "Plus": "+",
-                       "Cross": "x",
-                       }
-            colors = {"Red": "r",
-                      "Yellow": "y",
-                      "Green": "g",
-                      "Cyan": "c",
-                      "Blue": "b",
-                      "Magenta": "m",
-                      "Black": "k"
-                      }
+        markers = {"Point": ".",
+                   "Circle": "o",
+                   "Triangle": "v",
+                   "Square": "s",
+                   "Star": "*",
+                   "Diamond": "d",
+                   "Plus": "+",
+                   "Cross": "x",
+                   }
+        colors = {"Red": "tab:red",
+                  "Orange": "tab:orange",
+                  "Yellow": "tab:yellow",
+                  "Olive": "tab:olive",
+                  "Green": "tab:green",
+                  "Cyan": "tab:cyan",
+                  "Blue": "tab:blue",
+                  "Purple": "tab:purple",
+                  "Pink": "tab:pink",
+                  "Brown": "tab:brown",
+                  "Gray": "tab:gray",
+                  }
 
-            marker = config["wavelengths"][self.wavelength]
-            color = config["files"][self.file][0]
+        color = config["wavelengths"][self.wavelength]
+        marker = config["files"][self.file][0]
 
-            return str(markers[marker] + colors[color])
-
-        self.format_string = make_format_string()
+        self.color = colors[color]
+        self.marker = markers[marker]
 
 
 def make_dataframes():
@@ -63,14 +66,12 @@ def make_dataframes():
                 "Filter",
                 config["source"] + " : Magnitude (Centroid)"
             ]
-            df = pd.read_csv(file, skipinitialspace=True, names=cols)
+            df = pd.read_csv(file, skipinitialspace=True, usecols=cols)
 
-            try:
-                clean_df = df.loc[df["Filter"] is wavelength]
+            clean_df = df.loc[df["Filter"] == wavelength]
+            if not clean_df.empty:
                 dataframe = GraphDataframe(clean_df, wavelength, file)
                 dataframes.append(dataframe)
-            except KeyError:
-                pass
 
     return dataframes
 
@@ -91,26 +92,30 @@ def get_legend_location():
 
 def make_graph():
     dataframes = make_dataframes()
-    plt.figure()
-    # for wavelength in config["wavelengths"]:
-    #     plt.subplot()
-    #     legend_loc = get_legend_location()
-    #     if legend_loc is not "none":
-    #         legend = plt.legend(loc=legend_loc)
-    #     for df in dataframes:
-    #         plt.plot(df, fmt=df.format_string)
-    legend_location = get_legend_location()
-    for wavelength in config["wavelengths"].keys():
-        plt.subplot()
+    wavelengths = []
+    for df in dataframes:
+        wavelengths.append(df.wavelength) if df.wavelength not in wavelengths else wavelengths
 
-        for dataframe in dataframes:
-            if dataframe.wavelength is wavelength:
-                label = config["files"][dataframe.file][1]
-                plt.plot(dataframe, fmt=dataframe.format_string, label=label)
+    fig, axs = plt.subplots(len(wavelengths), sharex=True)
+    fig.suptitle(config["source"])
 
-        if legend_location != "none":
-            legend = plt.legend(loc=legend_location)
-            plt.show()
+    for wavelength in wavelengths:
+        ax_num = wavelengths.index(wavelength)
+        for df in dataframes:
+            if df.wavelength == wavelength:
+                axs[ax_num].scatter(x=df.dataframe["Timestamp (JD)"],
+                                    y=df.dataframe[config["source"] + " : Magnitude (Centroid)"],
+                                    s=20,
+                                    color=df.color, marker=df.marker,
+                                    label=config["files"][df.file][1] + " " + df.wavelength,
+                                    )
+                axs[ax_num].set_xlabel("Timestamp (JD)")
+                axs[ax_num].set_ylabel("Magnitude (Centroid)")
+                axs[ax_num].legend()
+                axs[ax_num].invert_yaxis()
+                axs[ax_num].figure.show()
+
+    plt.show()
 
 
 make_graph()

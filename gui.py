@@ -25,11 +25,11 @@ class WavelengthWidget(QWidget):
         outer_layout = QHBoxLayout()
         self.setLayout(outer_layout)
 
-        color_options = ["Red", "Yellow", "Green", "Cyan", "Blue", "Magenta", "Black"]
+        color_options = ["Red", "Orange", "Yellow", "Olive", "Green", "Cyan", "Blue", "Purple", "Pink", "Brown", "Gray"]
 
         wavelengths = [["B", color_options.index("Blue")], ["V", color_options.index("Green")],
                        ["R", color_options.index("Red")], ["I", color_options.index("Gray")],]
-        # ["G (Unavailable)", color_options.index("Magenta")]]
+        # ["G (Unavailable)", color_options.index("Purple")]]
 
         wavelength_groups = []
 
