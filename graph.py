@@ -1,19 +1,14 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import os
 import pandas as pd
 
-config = {
-  "source": "OJ287",
-  "wavelengths": {"V": "Purple",
-                  "R": "Red",
-                  },
-  "files": {os.path.normpath("C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 Photometry V+R.csv"): ["Point", "SRO20"],
-            os.path.normpath("C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 AAVSO.csv"): ["Diamond", "AAVSO"],
-            },
-  "error bars": False,
-  "legend": "Top Right"
-}
+config = {"source": "OJ287",
+          "wavelengths": {"V": "Purple", "R": "Red"},
+          "files": {os.path.normpath("C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 Photometry V+R.csv"): ["Point", "SRO20"],
+                    os.path.normpath("C:/Users/lanat/OneDrive/Desktop/Astro/OJ 287/OJ287 AAVSO.csv"): ["Diamond", "AAVSO"]},
+          "error bars": False,
+          "legend": "Top Right"
+          }
 
 
 class GraphDataframe:
@@ -61,17 +56,20 @@ def make_dataframes():
     dataframes = []
     for wavelength in config["wavelengths"].keys():
         for file in config["files"].keys():
-            cols = [
-                "Timestamp (JD)",
-                "Filter",
-                config["source"] + " : Magnitude (Centroid)"
-            ]
-            df = pd.read_csv(file, skipinitialspace=True, usecols=cols)
+            if os.path.splitext(file)[1] == ".csv":
+                cols = [
+                    "Timestamp (JD)",
+                    "Filter",
+                    config["source"] + " : Magnitude (Centroid)"
+                ]
+                df = pd.read_csv(file, skipinitialspace=True, usecols=cols)
 
-            clean_df = df.loc[df["Filter"] == wavelength]
-            if not clean_df.empty:
-                dataframe = GraphDataframe(clean_df, wavelength, file)
-                dataframes.append(dataframe)
+                clean_df = df.loc[df["Filter"] == wavelength]
+                if not clean_df.empty:
+                    dataframe = GraphDataframe(clean_df, wavelength, file)
+                    dataframes.append(dataframe)
+            else:
+                print("Unknown file type (" + file + ")")
 
     return dataframes
 
@@ -111,7 +109,7 @@ def make_graph():
                                     )
                 axs[ax_num].set_xlabel("Timestamp (JD)")
                 axs[ax_num].set_ylabel("Magnitude (Centroid)")
-                axs[ax_num].legend()
+                axs[ax_num].legend(loc=get_legend_location())
                 axs[ax_num].invert_yaxis()
                 axs[ax_num].figure.show()
 

@@ -1,12 +1,10 @@
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QVBoxLayout,
     QGroupBox,
     QTableWidget,
-    QTableWidgetItem,
     QHeaderView,
     QFileDialog,
     QFormLayout,
@@ -28,8 +26,8 @@ class WavelengthWidget(QWidget):
         color_options = ["Red", "Orange", "Yellow", "Olive", "Green", "Cyan", "Blue", "Purple", "Pink", "Brown", "Gray"]
 
         wavelengths = [["B", color_options.index("Blue")], ["V", color_options.index("Green")],
-                       ["R", color_options.index("Red")], ["I", color_options.index("Gray")],]
-        # ["G (Unavailable)", color_options.index("Purple")]]
+                       ["R", color_options.index("Red")], ["I", color_options.index("Gray")],
+                       ["G (Unavailable)", color_options.index("Purple")]]
 
         wavelength_groups = []
 
@@ -115,8 +113,7 @@ class Window(QWidget):
         self.setWindowTitle("AGN Magic!")
 
         sources_line_edit = QLineEdit()
-        # sources_line_edit.setPlaceholderText("Sources are comma-space delimited. "
-        #                                      "Make sure your text matches your data.")
+        sources_line_edit.setPlaceholderText("Make sure your input matches your data.")
 
         wavelength_widget = WavelengthWidget()
 
@@ -130,7 +127,7 @@ class Window(QWidget):
         legend_combobox.setCurrentIndex(0)
 
         # aspect_ratio_combobox = QComboBox()
-        # aspect_ratio_combobox_options = ["Portrait", "Landscape", "Square"]
+        # aspect_ratio_combobox_options = ["Vertical", "Horizontal", "Square"]
         # aspect_ratio_combobox.addItems(aspect_ratio_combobox_options)
         # aspect_ratio_combobox.setCurrentIndex(0)
 
