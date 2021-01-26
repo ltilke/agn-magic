@@ -107,6 +107,12 @@ class DataWidget(QWidget):
         #     print(self.file_list)
 
 
+def get_inputs(layout: QFormLayout()):
+    widgets = (layout.itemAt(i) for i in range(layout.count()))
+    for widget in widgets:
+        print(widget)
+
+
 class Window(QWidget):
     def __init__(self):
         super().__init__()
@@ -133,13 +139,16 @@ class Window(QWidget):
 
         form_layout = QFormLayout()
 
+        create_graph_button = QPushButton("Create Graph")
+        create_graph_button.clicked.connect(lambda: get_inputs(form_layout))
+
         form_layout.addRow("Source:", sources_line_edit)
         form_layout.addRow("Wavelengths:", wavelength_widget)
         form_layout.addRow("Add Data:", data_widget)
         form_layout.addRow("Error Bars:", error_bars_checkbox)
         form_layout.addRow("Legend:", legend_combobox)
         # form_layout.addRow("Aspect Ratio:", aspect_ratio_combobox)
-        form_layout.addRow(QPushButton("Create Graph"), QLabel(""))
+        form_layout.addRow(create_graph_button, QLabel(""))
 
         self.setLayout(form_layout)
 
