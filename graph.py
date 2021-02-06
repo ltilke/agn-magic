@@ -68,6 +68,7 @@ def make_dataframes():
                     config["source"] + " : Error"
                 ]
                 df = pd.read_csv(file, skipinitialspace=True, usecols=cols)
+                df.insert(1, "Timestamp (MJD)", df["Timestamp (JD)"] - 2400000.5)
 
                 clean_df = df.loc[df["Filter"] == wavelength]
                 if not clean_df.empty:
@@ -120,20 +121,20 @@ def make_graph():
         ax_num = wavelengths.index(wavelength)
         for df in dataframes:
             if df.wavelength == wavelength:
-                axs[ax_num].scatter(x=df.dataframe["Timestamp (JD)"],
+                axs[ax_num].scatter(x=df.dataframe["Timestamp (MJD)"],
                                     y=df.dataframe[config["source"] + " : Magnitude (Centroid)"],
                                     s=df.size,
                                     color=df.color, marker=df.marker, alpha=df.alpha,
                                     label=config["files"][df.file][1] + " " + df.wavelength,
                                     )
                 if config["error bars"] is True:
-                    axs[ax_num].errorbar(x=df.dataframe["Timestamp (JD)"],
+                    axs[ax_num].errorbar(x=df.dataframe["Timestamp (MJD)"],
                                          y=df.dataframe[config["source"] + " : Magnitude (Centroid)"],
                                          yerr=df.dataframe[config["source"] + " : Error"],
                                          color=df.color, alpha=df.alpha,
                                          linestyle="None"
                                          )
-                axs[ax_num].set_xlabel("Timestamp (JD)")
+                axs[ax_num].set_xlabel("Timestamp (MJD)")
                 axs[ax_num].set_ylabel("Magnitude (Centroid)")
                 axs[ax_num].legend(loc=get_legend_location())
                 axs[ax_num].invert_yaxis()

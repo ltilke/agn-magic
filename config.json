@@ -6,8 +6,8 @@
     "G": "Purple"
   },
   "files": {
-    "C:\\Users\\lanat\\OneDrive\\Desktop\\Astro\\OJ 287\\OJ287 Photometry V+R.csv": ["Point", "SRO20", true],
-    "C:\\Users\\lanat\\OneDrive\\Desktop\\Astro\\OJ 287\\OJ287 V+R AAVSO.csv": ["Diamond", "AAVSO", false]
+    "C:\\Users\\lanat\\Documents\\Data\\OJ287\\OJ287 Photometry V+R.csv": ["Point", "SRO20", true],
+    "C:\\Users\\lanat\\Documents\\Data\\OJ287\\OJ287 AAVSO.csv": ["Diamond", "AAVSO", false]
   },
   "error bars": true,
   "legend": "Top Right"
