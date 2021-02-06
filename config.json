@@ -2,13 +2,13 @@
   "source": "OJ287",
   "wavelengths": {
     "V": "Green",
-    "R": "Red",
-    "G": "Purple"
+    "R": "Red"
   },
   "files": {
     "C:\\Users\\lanat\\Documents\\Data\\OJ287\\OJ287 Photometry V+R.csv": ["Point", "SRO20", true],
     "C:\\Users\\lanat\\Documents\\Data\\OJ287\\OJ287 AAVSO.csv": ["Diamond", "AAVSO", false]
   },
+  "grid": true,
   "error bars": true,
   "legend": "Top Right"
 }

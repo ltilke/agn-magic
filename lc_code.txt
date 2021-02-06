@@ -1,0 +1,48 @@
+courtesy of Nik Korzoun via AGN_Wizard
+
+
+if item.text(0).endswith('.lc'):
+    file = item.text(0)
+    telescope = self.page4.tree.itemWidget(item, 1).text()
+    symbol = self.page4.tree.itemWidget(item, 2).currentText()
+
+    # change symbol string to something matplotlib understands
+    if symbol == 'triangle':
+        symbol = '^'
+    elif symbol == 'square':
+        symbol = 's'
+    elif symbol == 'diamond':
+        symbol = 'd'
+    elif symbol == 'pentagon':
+        symbol = 'p'
+    elif symbol == 'hexagon':
+        symbol = 'H'
+    elif symbol == 'octagon':
+        symbol = '8'
+    elif symbol == 'X':
+        symbol = 'x'
+    elif symbol == '+':
+        symbol = '+'
+    else:
+        symbol = '.'
+
+    data = Table.read(file)
+    date = data['START']
+    # convert Fermi MET time to MJD
+    # convert seconds to minutes to hours to days
+    # JD on Jan 1 2001, 00:00:00 UT : 2451910.5
+    # MJD = JD - 2400000.5
+    date = (date / 60 / 60 / 24) + 2451910.5 - 2450000
+    flux = data['FLUX_100_300000'] * 100000
+    if self.page5.error.isChecked():
+        error = data['ERROR_100_300000'] * 100000
+    else:
+        error = 0
+    axs[numPlots - 1].errorbar(date, flux, yerr=error, fmt=symbol, markersize=8, color=clr,
+                               label=telescope)
+    axs[numPlots - 1].set_yticks(
+        np.arange(0, round(1.1 * np.max(flux), 1), round(0.2 * np.max(flux), 1)))
+    axs[numPlots - 1].set_ylim(0, np.max(flux) + 0.5)
+    axs[numPlots - 1].set_ylabel("Gamma$\ [10^{-5}\ ph\ s^{-1}\ cm^{-2}]$")
+    axs[numPlots - 1].set_xlabel("JD-2450000")
+    axs[numPlots - 1].legend(loc=legendLoc, fontsize='small')
