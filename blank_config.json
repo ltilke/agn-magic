@@ -1,7 +1,11 @@
 {
-  "source": "",
+  "sources": [],
+
   "wavelengths": {},
+
   "files": {},
-  "error bars": false,
+
+  "grid": false,
+  "error": false,
   "legend": ""
 }
