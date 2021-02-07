@@ -1,93 +1,117 @@
-import matplotlib.pyplot as plt
-import os
 import json
+import os
 import pandas as pd
+import matplotlib.pyplot as plt
+
 
 with open("config.json") as json_file:
     config = json.load(json_file)
 
 
-class GraphDataframe:
-    dataframe = pd.DataFrame
+def get_color(color):
+    colors = {"Red": "tab:red",
+              "Orange": "tab:orange",
+              "Yellow": "tab:yellow",
+              "Olive": "tab:olive",
+              "Green": "tab:green",
+              "Cyan": "tab:cyan",
+              "Blue": "tab:blue",
+              "Purple": "tab:purple",
+              "Pink": "tab:pink",
+              "Brown": "tab:brown",
+              "Gray": "tab:gray",
+              }
+
+    return colors[color]
+
+
+def get_marker(marker):
+    markers = {"Point": ".",
+               "Circle": "o",
+               "Triangle": "v",
+               "Square": "s",
+               "Star": "*",
+               "Diamond": "d",
+               "Plus": "+",
+               "Cross": "x",
+               }
+
+    return markers[marker]
+
+
+class DataSet:
+    source = ""
     wavelength = ""
-    file = os.path
-    color = ""
+    file = ""
+
+    filetype = ""
+
+    telescope = ""
     marker = ""
+    color = ""
+
     size = 20
     alpha = 1
 
-    def __init__(self, dataframe, wavelength, file):
-        self.dataframe = dataframe
+    primary_source = False
+    primary_telescope = False
+
+    time_mjd = []
+    y_data = []
+    error = []
+
+    label = ""
+
+    is_valid = False
+
+    def __init__(self, source, wavelength, file):
+        self.source = source
         self.wavelength = wavelength
         self.file = file
 
-        markers = {"Point": ".",
-                   "Circle": "o",
-                   "Triangle": "v",
-                   "Square": "s",
-                   "Star": "*",
-                   "Diamond": "d",
-                   "Plus": "+",
-                   "Cross": "x",
-                   }
-        colors = {"Red": "tab:red",
-                  "Orange": "tab:orange",
-                  "Yellow": "tab:yellow",
-                  "Olive": "tab:olive",
-                  "Green": "tab:green",
-                  "Cyan": "tab:cyan",
-                  "Blue": "tab:blue",
-                  "Purple": "tab:purple",
-                  "Pink": "tab:pink",
-                  "Brown": "tab:brown",
-                  "Gray": "tab:gray",
-                  }
+        self.filetype = os.path.splitext(self.file)[1]
 
-        if config["files"][self.file][2] is True:
-            color = config["wavelengths"][self.wavelength]
-        else:
-            color = "Gray"
+        self.telescope = config["files"][self.file][0]
+        self.primary_telescope = config["files"][self.file][1]
+        self.marker = get_marker(config["files"][self.file][2])
+
+        self.color = get_color(config["wavelengths"][self.wavelength])
+
+        if config["sources"].index(self.source) == 0:
+            self.primary_source = True
+
+        if not self.primary_source:
+            self.alpha = 0.1
+
+        if not self.primary_telescope:
+            self.color = "Gray"
             self.size = 5
             self.alpha = 0.5
 
-        marker = config["files"][self.file][0]
+        if self.filetype == ".csv":
+            csv = pd.read_csv(file, skipinitialspace=True)
+            csv = csv.loc[csv["Filter"] == self.wavelength]
 
-        self.color = colors[color]
-        self.marker = markers[marker]
+            if (self.source + " : Magnitude (Centroid)") in csv:
+                time_jd = csv["Timestamp (JD)"]
+                time_mjd = [jd - 2400000.5 for jd in time_jd]
+                self.time_mjd = time_mjd
 
+                mag = csv[self.source + " : Magnitude (Centroid)"]
+                self.y_data = mag
 
-def make_dataframes():
-    dataframes = []
+                error = csv[self.source + " : Error"]
+                self.error = error
 
-    for wavelength in config["wavelengths"].keys():
-        for file in config["files"].keys():
+                self.is_valid = True
 
-            if os.path.splitext(file)[1] == ".csv":
-                cols = [
-                    "Timestamp (JD)",
-                    "Filter",
-                    config["source"] + " : Magnitude (Centroid)",
-                    config["source"] + " : Error"
-                ]
+        elif self.filetype == ".lc":
+            print(".lc files are not yet supported.")
 
-                df = pd.read_csv(file, skipinitialspace=True, usecols=cols)
-                df.insert(1, "Timestamp (MJD)", df["Timestamp (JD)"] - 2400000.5)
+        else:
+            print("Unknown file type: " + self.filetype + ".")
 
-                clean_df = df.loc[df["Filter"] == wavelength]
-                if not clean_df.empty:
-                    dataframe = GraphDataframe(clean_df, wavelength, file)
-                    dataframes.append(dataframe)
-
-            elif os.path.splitext(file)[1] == ".lc":
-                if "G" in config["wavelengths"]:
-                    print(".lc files are not yet supported.")
-                else:
-                    del(config["files"][file])
-
-            else:
-                print("Unknown file type (" + os.path.splitext(file)[1] + ")")
-
-    return dataframes
+        self.label = self.source + " " + self.telescope + " " + self.wavelength
 
 
 def get_legend_location():
@@ -104,47 +128,62 @@ def get_legend_location():
     return "none"
 
 
-def make_graph():
-    dataframes = make_dataframes()
-    wavelengths = []
-
-    for df in dataframes:
-        wavelengths.append(df.wavelength) if df.wavelength not in wavelengths else wavelengths
-
+def make_plot(data: {}):
     # noinspection PyTypeChecker
-    fig, axs = plt.subplots(len(wavelengths), sharex=True, sharey=True)
-    fig.suptitle(config["source"])
+    fig, axs = plt.subplots(len(data), sharex=True, sharey=True)
 
-    for wavelength in wavelengths:
-        ax_num = wavelengths.index(wavelength)
+    ax_num = 0
 
-        for df in dataframes:
+    filters = ["B", "V", "R", "I", "G"]
+    ordered_data = {k: data[k] for k in filters if k in data}
+
+    for wavelength in ordered_data:
+        if config["grid"]:
             axs[ax_num].grid(color="tab:gray", linestyle="--", linewidth=0.25)
 
-            if df.wavelength == wavelength:
-                axs[ax_num].scatter(x=df.dataframe["Timestamp (MJD)"],
-                                    y=df.dataframe[config["source"] + " : Magnitude (Centroid)"],
-                                    s=df.size,
-                                    color=df.color, marker=df.marker, alpha=df.alpha,
-                                    label=config["files"][df.file][1],
-                                    )
+        for dataset in ordered_data[wavelength]:
+            axs[ax_num].scatter(x=dataset.time_mjd,
+                                y=dataset.y_data,
+                                s=dataset.size,
+                                color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
+                                label=dataset.label,
+                                )
 
-                if config["error bars"] is True:
-                    axs[ax_num].errorbar(x=df.dataframe["Timestamp (MJD)"],
-                                         y=df.dataframe[config["source"] + " : Magnitude (Centroid)"],
-                                         yerr=df.dataframe[config["source"] + " : Error"],
-                                         color=df.color, alpha=df.alpha,
-                                         linestyle="None"
-                                         )
+            if config["error"]:
+                axs[ax_num].errorbar(x=dataset.time_mjd,
+                                     y=dataset.y_data,
+                                     yerr=dataset.error,
+                                     color=dataset.color, alpha=dataset.alpha,
+                                     linestyle="None"
+                                     )
 
-                axs[ax_num].set_xlabel("Timestamp (MJD)")
-                axs[ax_num].set_ylabel(df.wavelength + " Magnitude")
-                axs[ax_num].legend(loc=get_legend_location())
+            if dataset.filetype == ".csv":
+                axs[ax_num].set_ylabel(wavelength + " [mag]")
                 axs[ax_num].invert_yaxis()
-                axs[ax_num].figure.show()
+
+            axs[ax_num].legend(loc=get_legend_location())
+
+        axs[ax_num].set_xlabel("Timestamp [MJD]")
+        axs[ax_num].figure.show()
+        ax_num += 1
 
     plt.subplots_adjust(hspace=0)
     plt.show()
 
 
-make_graph()
+def main():
+    data = {}
+
+    for wavelength in config["wavelengths"]:
+        data[wavelength] = []
+        for source in config["sources"]:
+            for file in config["files"]:
+                dataset = DataSet(source, wavelength, file)
+                if dataset.time_mjd:  # change to if dataset.is_valid: (not working?) !TODO
+                    data[wavelength].append(dataset)
+
+    cleaned_data = {k: v for k, v in data.items() if len(v) != 0}
+    make_plot(cleaned_data)
+
+
+main()
