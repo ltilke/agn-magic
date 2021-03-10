@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import (
 )
 
 
-class WavelengthWidget(QWidget):
+class FilterWidget(QWidget):
     def __init__(self):
         super().__init__()
         outer_layout = QHBoxLayout()
@@ -45,7 +45,7 @@ class WavelengthWidget(QWidget):
             wavelength_groups.append(wl_groupbox)
 
 
-class DataWidget(QWidget):
+class FilesWidget(QWidget):
     file_list = {}
 
     def __init__(self):
@@ -118,36 +118,22 @@ class Window(QWidget):
         super().__init__()
         self.setWindowTitle("AGN Magic!")
 
-        sources_line_edit = QLineEdit()
-        sources_line_edit.setPlaceholderText("Make sure your input matches your data.")
-
-        wavelength_widget = WavelengthWidget()
-
-        data_widget = DataWidget()
-
-        error_bars_checkbox = QCheckBox()
-
-        legend_combobox = QComboBox()
-        legend_combobox_options = ["Best", "Top Left", "Top Right", "Bottom Left", "Bottom Right", "None"]
-        legend_combobox.addItems(legend_combobox_options)
-        legend_combobox.setCurrentIndex(0)
-
-        # aspect_ratio_combobox = QComboBox()
-        # aspect_ratio_combobox_options = ["Vertical", "Horizontal", "Square"]
-        # aspect_ratio_combobox.addItems(aspect_ratio_combobox_options)
-        # aspect_ratio_combobox.setCurrentIndex(0)
-
         form_layout = QFormLayout()
 
+        sources_line = QLineEdit()
+        filter_widget = FilterWidget()
+        files_widget = FilesWidget()
+        grid_check = QCheckBox()
+        error_check = QCheckBox()
+        legend_combo = QComboBox()
         create_graph_button = QPushButton("Create Graph")
-        create_graph_button.clicked.connect(lambda: get_inputs(form_layout))
 
-        form_layout.addRow("Source:", sources_line_edit)
-        form_layout.addRow("Wavelengths:", wavelength_widget)
-        form_layout.addRow("Add Data:", data_widget)
-        form_layout.addRow("Error Bars:", error_bars_checkbox)
-        form_layout.addRow("Legend:", legend_combobox)
-        # form_layout.addRow("Aspect Ratio:", aspect_ratio_combobox)
+        form_layout.addRow("Source(s):", sources_line)
+        form_layout.addRow("Filter(s):", filter_widget)
+        form_layout.addRow("Load File(s):", files_widget)
+        form_layout.addRow("Grid:", grid_check)
+        form_layout.addRow("Error:", error_check)
+        form_layout.addRow("Legend:", legend_combo)
         form_layout.addRow(create_graph_button, QLabel(""))
 
         self.setLayout(form_layout)

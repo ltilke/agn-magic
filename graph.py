@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-with open("config.json") as json_file:
+with open("config_backup.json") as json_file:
     config = json.load(json_file)
 
 
@@ -80,8 +80,8 @@ class DataSet:
         if config["sources"].index(self.source) == 0:
             self.primary_source = True
 
-        if not self.primary_source:
-            self.alpha = 0.1
+        # if not self.primary_source:
+        #     self.alpha = 0.5
 
         if not self.primary_telescope:
             self.color = "Gray"
@@ -130,7 +130,7 @@ def get_legend_location():
 
 def make_plot(data: {}):
     # noinspection PyTypeChecker
-    fig, axs = plt.subplots(len(data), sharex=True, sharey=True)
+    fig, axs = plt.subplots(len(data), sharex=True)
 
     ax_num = 0
 
@@ -161,9 +161,10 @@ def make_plot(data: {}):
                 axs[ax_num].set_ylabel(wavelength + " [mag]")
                 axs[ax_num].invert_yaxis()
 
-            axs[ax_num].legend(loc=get_legend_location())
+            if get_legend_location() != "none":
+                axs[ax_num].legend(loc=get_legend_location())
 
-        axs[ax_num].set_xlabel("Timestamp [MJD]")
+        axs[ax_num].set_xlabel("MJD [JD - 2400000.5]")
         axs[ax_num].figure.show()
         ax_num += 1
 

@@ -1,0 +1,22 @@
+{
+  "sources": [
+    "MRK501"
+
+  ],
+
+  "wavelengths": {
+    "R": "Red",
+    "V": "Green"
+  },
+
+  "files": {
+    "C:\\Users\\lanat\\Documents\\Data\\Mrk 501\\MRK501 Stacked.csv": ["Lana", true, "Cross"],
+    "C:\\Users\\lanat\\Downloads\\SRO MRK501 2020 V and R Band Stacked Data.csv": ["Christina", true, "Point"],
+    "C:\\Users\\lanat\\Downloads\\MRK501_Stacked_R.csv": ["Wyatt", true, "Plus"],
+    "C:\\Users\\lanat\\Downloads\\MRK501_Stacked_V.csv": ["Wyatt", true, "Plus"]
+  },
+
+  "grid": true,
+  "error": true,
+  "legend": "Bottom Left"
+}
