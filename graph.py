@@ -76,9 +76,6 @@ class DataSet:
         if config["sources"].index(self.source) == 0:
             self.primary_source = True
 
-        # if not self.primary_source:
-        #     self.alpha = 0.5
-
         if not self.primary_telescope:
             self.color = "Gray"
             self.size = 5
@@ -90,7 +87,7 @@ class DataSet:
 
             if (self.source + " : Magnitude (Centroid)") in csv:
                 time_jd = csv["Timestamp (JD)"]
-                time_mjd = [jd - 2400000.5 for jd in time_jd]
+                time_mjd = [jd - 2450000 for jd in time_jd]
                 self.time_mjd = time_mjd
 
                 mag = csv[self.source + " : Magnitude (Centroid)"]
@@ -134,36 +131,67 @@ def make_plot(data: {}, config):
     ordered_data = {k: data[k] for k in filters if k in data}
 
     for wavelength in ordered_data:
-        if config["grid"]:
-            axs[ax_num].grid(color="tab:gray", linestyle="--", linewidth=0.25)
 
-        for dataset in ordered_data[wavelength]:
-            axs[ax_num].scatter(x=dataset.time_mjd,
-                                y=dataset.y_data,
-                                s=dataset.size,
-                                color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
-                                label=dataset.label,
-                                )
+        if len(ordered_data) == 1:
+            axs.grid(color="tab:gray", linestyle="--", linewidth=0.25)
+            for dataset in ordered_data[wavelength]:
+                axs.scatter(x=dataset.time_mjd,
+                                    y=dataset.y_data,
+                                    s=dataset.size,
+                                    color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
+                                    label=dataset.label,
+                                    )
 
-            if config["error"]:
-                axs[ax_num].errorbar(x=dataset.time_mjd,
-                                     y=dataset.y_data,
-                                     yerr=dataset.error,
-                                     color=dataset.color, alpha=dataset.alpha,
-                                     linestyle="None"
-                                     )
+                if config["error"]:
+                    axs.errorbar(x=dataset.time_mjd,
+                                 y=dataset.y_data,
+                                 yerr=dataset.error,
+                                 color=dataset.color, alpha=dataset.alpha,
+                                 linestyle="None"
+                                 )
 
-            if dataset.filetype == ".csv":
-                axs[ax_num].set_ylabel(wavelength + " [mag]")
-                axs[ax_num].invert_yaxis()
+                if dataset.filetype == ".csv":
+                    axs.set_ylabel(wavelength + " [mag]")
 
-            if get_legend_location(config) != "none":
-                axs[ax_num].legend(loc=get_legend_location(config))
+                if get_legend_location(config) != "none":
+                    axs.legend(loc=get_legend_location(config))
 
-        axs[ax_num].set_xlabel("MJD [JD - 2400000.5]")
-        axs[ax_num].figure.show()
-        ax_num += 1
+            axs.set_xlabel("MJD [JD - 2450000]")
+            axs.figure.show()
 
+        else:
+            if config["grid"]:
+                axs[ax_num].grid(color="tab:gray", linestyle="--", linewidth=0.25)
+
+            for dataset in ordered_data[wavelength]:
+                axs[ax_num].scatter(x=dataset.time_mjd,
+                                    y=dataset.y_data,
+                                    s=dataset.size,
+                                    color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
+                                    label=dataset.label,
+                                    )
+
+                if config["error"]:
+                    axs[ax_num].errorbar(x=dataset.time_mjd,
+                                         y=dataset.y_data,
+                                         yerr=dataset.error,
+                                         color=dataset.color, alpha=dataset.alpha,
+                                         linestyle="None"
+                                         )
+
+                if dataset.filetype == ".csv":
+                    axs[ax_num].set_ylabel(wavelength + " [mag]")
+
+                if get_legend_location(config) != "none":
+                    axs[ax_num].legend(loc=get_legend_location(config))
+
+            axs[ax_num].set_xlabel("MJD [JD - 2450000]")
+            axs[ax_num].figure.show()
+            ax_num += 1
+
+    for ax in range(ax_num):
+        if "[mag]" in axs[ax].get_ylabel():
+            axs[ax].invert_yaxis()
     plt.subplots_adjust(hspace=0)
     plt.show()
 
