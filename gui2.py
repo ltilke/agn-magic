@@ -1,8 +1,7 @@
 import sys
 
 import json
-# import graph
-
+from graph import main as graph_main
 from PyQt5.QtWidgets import (
     QApplication,
     QFormLayout,
@@ -15,6 +14,9 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QVBoxLayout,
     QGroupBox,
+    QFileDialog,
+    QTableWidget,
+    QHeaderView
 )
 
 
@@ -60,6 +62,50 @@ class FilesWidget(QWidget):
 
     def __init__(self):
         super().__init__()
+        outer_layout = QVBoxLayout()
+        self.setLayout(outer_layout)
+
+        self.file_table = QTableWidget()
+        self.file_table.setColumnCount(4)
+        self.file_table.setHorizontalHeaderLabels(["File", "Name", "Symbol", "Highlight"])
+        file_table_header = self.file_table.horizontalHeader()
+        file_table_header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        file_table_header.setSectionResizeMode(1, QHeaderView.Stretch)
+        file_table_header.setSectionResizeMode(2, QHeaderView.Stretch)
+        file_table_header.setSectionResizeMode(3, QHeaderView.Stretch)
+
+        select_files_button = QPushButton("Select Files")
+        select_files_button.clicked.connect(self.file_dialog)
+
+        outer_layout.addWidget(self.file_table)
+        outer_layout.addWidget(select_files_button)
+
+    def file_dialog(self):
+        dialog = QFileDialog()
+        file_names, _ = dialog.getOpenFileNames(filter="Data Files (*.csv *.lc)")
+        if file_names:
+            for file_name in file_names:
+                if file_name not in self.files:
+                    self.add_file(file_name)
+                    self.make_row(file_name)
+
+    def make_row(self, file):
+        row_count = self.file_table.rowCount()
+        self.file_table.insertRow(row_count)
+        self.file_table.setCellWidget(row_count, 0, QLabel(file))
+        self.file_table.setCellWidget(row_count, 1, self.files[file][0])
+        self.file_table.setCellWidget(row_count, 2, self.files[file][1])
+        self.file_table.setCellWidget(row_count, 3, self.files[file][2])
+
+    def add_file(self, file):
+        telescope_line = QLineEdit()
+        highlight_check = QCheckBox()
+        symbols_combobox = QComboBox()
+        symbols_combobox_options = ["Point", "Circle", "Triangle", "Square", "Star", "Diamond",
+                                    "Plus", "Cross"]
+        symbols_combobox.addItems(symbols_combobox_options)
+        symbols_combobox.setCurrentIndex(0)
+        self.files[file] = [telescope_line, symbols_combobox, highlight_check]
 
 
 class GridWidget(QWidget):
@@ -135,16 +181,21 @@ class Controller:
         checked_wavelengths = {}
         for wl in wavelengths:
             if wavelengths[wl][0].isChecked():
-                print(wavelengths[wl][0])
-                print(wavelengths[wl][1])
                 checked_wavelengths[wl] = str(wavelengths[wl][1].currentText())
+        files = self.view.files_widget.files
+        files_info = {}
+        for file in files:
+            files_info[file] = []
+            files_info[file].append(files[file][0].text())
+            files_info[file].append(files[file][2].isChecked())
+            files_info[file].append(files[file][1].currentText())
 
         out_dict = {"sources": self.view.sources_line.sources_line.text().split(", "),
                     "grid": self.view.grid_check.grid_check.isChecked(),
                     "error": self.view.error_check.error_check.isChecked(),
                     "legend": self.view.legend_combo.legend_combo.currentText(),
                     "wavelengths": checked_wavelengths,
-                    "files": {}
+                    "files": files_info
                     }
 
         with open("config.json", "w") as output:
@@ -152,7 +203,7 @@ class Controller:
 
     def make_graph(self):
         self.write_json()
-        # graph
+        graph_main("config.json")
         self.view.close()
 
 

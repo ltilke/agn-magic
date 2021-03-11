@@ -4,10 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-with open("config_backup.json") as json_file:
-    config = json.load(json_file)
-
-
 def get_color(color):
     colors = {"Red": "tab:red",
               "Orange": "tab:orange",
@@ -64,7 +60,7 @@ class DataSet:
 
     is_valid = False
 
-    def __init__(self, source, wavelength, file):
+    def __init__(self, source, wavelength, file, config):
         self.source = source
         self.wavelength = wavelength
         self.file = file
@@ -114,7 +110,7 @@ class DataSet:
         self.label = self.source + " " + self.telescope + " " + self.wavelength
 
 
-def get_legend_location():
+def get_legend_location(config):
     legends = {"Best": "best",
                "Top Left": "upper left",
                "Top Right": "upper right",
@@ -128,7 +124,7 @@ def get_legend_location():
     return "none"
 
 
-def make_plot(data: {}):
+def make_plot(data: {}, config):
     # noinspection PyTypeChecker
     fig, axs = plt.subplots(len(data), sharex=True)
 
@@ -161,8 +157,8 @@ def make_plot(data: {}):
                 axs[ax_num].set_ylabel(wavelength + " [mag]")
                 axs[ax_num].invert_yaxis()
 
-            if get_legend_location() != "none":
-                axs[ax_num].legend(loc=get_legend_location())
+            if get_legend_location(config) != "none":
+                axs[ax_num].legend(loc=get_legend_location(config))
 
         axs[ax_num].set_xlabel("MJD [JD - 2400000.5]")
         axs[ax_num].figure.show()
@@ -172,19 +168,19 @@ def make_plot(data: {}):
     plt.show()
 
 
-def main():
+def main(config_file):
+    with open(config_file) as json_file:
+        config = json.load(json_file)
+
     data = {}
 
     for wavelength in config["wavelengths"]:
         data[wavelength] = []
         for source in config["sources"]:
             for file in config["files"]:
-                dataset = DataSet(source, wavelength, file)
+                dataset = DataSet(source, wavelength, file, config)
                 if dataset.time_mjd:  # change to if dataset.is_valid: (not working?) !TODO
                     data[wavelength].append(dataset)
 
     cleaned_data = {k: v for k, v in data.items() if len(v) != 0}
-    make_plot(cleaned_data)
-
-
-main()
+    make_plot(cleaned_data, config)
