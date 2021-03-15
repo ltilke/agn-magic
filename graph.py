@@ -76,7 +76,7 @@ class DataSet:
         if config["sources"].index(self.source) == 0:
             self.primary_source = True
 
-        if not self.primary_telescope:
+        if not self.primary_telescope or not self.primary_source:
             self.color = "Gray"
             self.size = 5
             self.alpha = 0.5
@@ -133,7 +133,7 @@ def make_plot(data: {}, config):
     for wavelength in ordered_data:
 
         if len(ordered_data) == 1:
-            axs.grid(color="tab:gray", linestyle="--", linewidth=0.25)
+            axs.grid(color="tab:gray", which="both", linestyle="--", linewidth=0.25)
             for dataset in ordered_data[wavelength]:
                 axs.scatter(x=dataset.time_mjd,
                                     y=dataset.y_data,
@@ -161,7 +161,9 @@ def make_plot(data: {}, config):
 
         else:
             if config["grid"]:
-                axs[ax_num].grid(color="tab:gray", linestyle="--", linewidth=0.25)
+                axs[ax_num].grid(color="tab:gray", which="major", linestyle="--", linewidth=0.25)
+                axs[ax_num].grid(color="tab:gray", which="minor", linestyle="--", linewidth=0.08)
+                axs[ax_num].minorticks_on()
 
             for dataset in ordered_data[wavelength]:
                 axs[ax_num].scatter(x=dataset.time_mjd,
