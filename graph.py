@@ -122,8 +122,12 @@ def get_legend_location(config):
 
 
 def make_plot(data: {}, config):
-    # noinspection PyTypeChecker
-    fig, axs = plt.subplots(len(data), sharex=True)
+
+    if len(data) >= 1:
+        # noinspection PyTypeChecker
+        fig, axs = plt.subplots(len(data), sharex=True)
+    else:
+        print("No data found. Check source name.")
 
     ax_num = 0
 
@@ -131,16 +135,15 @@ def make_plot(data: {}, config):
     ordered_data = {k: data[k] for k in filters if k in data}
 
     for wavelength in ordered_data:
-
         if len(ordered_data) == 1:
             axs.grid(color="tab:gray", which="both", linestyle="--", linewidth=0.25)
             for dataset in ordered_data[wavelength]:
                 axs.scatter(x=dataset.time_mjd,
-                                    y=dataset.y_data,
-                                    s=dataset.size,
-                                    color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
-                                    label=dataset.label,
-                                    )
+                            y=dataset.y_data,
+                            s=dataset.size,
+                            color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
+                            label=dataset.label,
+                            )
 
                 if config["error"]:
                     axs.errorbar(x=dataset.time_mjd,

@@ -156,7 +156,7 @@ class Window(QWidget):
         self.error_check = ErrorWidget()
         self.legend_combo = LegendWidget()
         self.create_graph_button = QPushButton("Create Graph")
-        self.load_config_button = QPushButton("Load Config")
+        self.load_config_button = QPushButton("Reload Config")
 
         form_layout.addRow("Source(s):", self.sources_line)
         form_layout.addRow("Filter(s):", self.filter_widget)
@@ -174,8 +174,12 @@ class Controller:
         def model():
             self.make_graph()
 
+        def load_config():
+            self.load_config()
+
         self.view = view
         self.view.create_graph_button.clicked.connect(model)
+        self.view.load_config_button.clicked.connect(load_config)
 
     def write_json(self):
         wavelengths = self.view.filter_widget.wavelength_groups
@@ -183,6 +187,7 @@ class Controller:
         for wl in wavelengths:
             if wavelengths[wl][0].isChecked():
                 checked_wavelengths[wl] = str(wavelengths[wl][1].currentText())
+
         files = self.view.files_widget.files
         files_info = {}
         for file in files:
@@ -211,6 +216,68 @@ class Controller:
 
         with open("config.json", "w") as output:
             json.dump(out_dict, output)
+
+    def load_config(self):
+        with open("config.json") as config_file:
+            config = json.load(config_file)
+
+        source_list = ""
+        source_num = 1
+        for source in config["sources"]:
+            source_list += source
+            if source_num < len(config["sources"]):
+                source_list += ", "
+                source_num += 1
+        self.view.sources_line.sources_line.setText(source_list)
+
+        if config["grid"]:
+            self.view.grid_check.grid_check.setChecked(True)
+        else:
+            self.view.grid_check.grid_check.setChecked(False)
+
+        if config["error"]:
+            self.view.error_check.error_check.setChecked(True)
+        else:
+            self.view.error_check.error_check.setChecked(False)
+
+        legend = config["legend"]
+        legend_options = ["Best", "Top Left", "Top Right", "Bottom Left", "Bottom Right", "None"]
+        self.view.legend_combo.legend_combo.setCurrentIndex(legend_options.index(legend))
+
+        wavelength_widgets = self.view.filter_widget.wavelength_groups
+        wavelengths = config["wavelengths"]
+        color_options = ["Red", "Orange", "Yellow", "Olive", "Green", "Cyan", "Blue", "Purple", "Pink", "Brown", "Gray"]
+        for wl in wavelength_widgets:
+            if wl.title() in wavelengths:
+                wavelength_widgets[wl][0].setChecked(True)
+                wavelength_widgets[wl][1].setCurrentIndex(color_options.index(wavelengths[wl.title()]))
+
+        file_table = self.view.files_widget.file_table
+        files = {}
+        for file in config["files"]:
+            telescope_line = QLineEdit()
+            highlight_check = QCheckBox()
+            symbols_combobox = QComboBox()
+
+            symbols_combobox_options = ["Point", "Circle", "Triangle", "Square", "Star", "Diamond", "Plus", "Cross"]
+            symbols_combobox.addItems(symbols_combobox_options)
+            symbols_combobox.setCurrentIndex(0)
+
+            telescope_line.setText(config["files"][file][0])
+            symbols_combobox.setCurrentIndex(symbols_combobox_options.index(config["files"][file][2]))
+            highlight_check.setChecked(config["files"][file][1])
+
+            files[file] = [telescope_line, symbols_combobox, highlight_check]
+
+        for f in files:
+            row_count = file_table.rowCount()
+            file_table.insertRow(row_count)
+            file_table.setCellWidget(row_count, 0, QLabel(f))
+            file_table.setCellWidget(row_count, 1, files[f][0])
+            file_table.setCellWidget(row_count, 2, files[f][1])
+            file_table.setCellWidget(row_count, 3, files[f][2])
+
+        self.view.files_widget.files = files
 
     def make_graph(self):
         self.write_json()
