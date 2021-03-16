@@ -1,1 +1,1 @@
-{"sources": ["MRK501"], "grid": true, "error": true, "legend": "Best", "wavelengths": {"V": "Green", "R": "Red"}, "files": {"C:/Users/lanat/Documents/Data/Mrk 501/Mrk 501.csv": ["SRO20", true, "Point"]}}
+{"sources": ["OJ287"], "grid": true, "error": true, "legend": "Top Left", "wavelengths": {"V": "Green", "R": "Red"}, "files": {"C:/Users/lanat/Documents/Data/OJ287/OJ287 AAVSO.csv": ["AAVSO", false, "Point"], "C:/Users/lanat/Documents/Data/OJ287/OJ287 Photometry V+R.csv": ["SRO20", true, "Point"]}}

@@ -5,8 +5,7 @@
   ],
 
   "wavelengths": {
-    "R": "Red",
-    "V": "Green"
+    "R": "Red"
   },
 
   "files": {

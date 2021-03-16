@@ -1,3 +1,17 @@
+# Lana Joan Tilke
+# Connecticut College Astrophysics Class of 2023
+# AGN Magic!
+
+#                 ,,__
+#       ..  ..   / o._)
+#      /--'/--\  \-'||
+#     /        \_/ / |
+#   .'\  \__\  __.'.'
+#     )\ |  )\ |
+#    // \\ // \\
+#   ||_  \\|_  \\_
+#   '--' '--'' '--'
+
 import sys
 
 import json
@@ -20,7 +34,7 @@ from PyQt5.QtWidgets import (
 )
 
 
-class SourceWidget(QWidget):
+class SourceWidget(QWidget):  # a compound widget for the source line edit, just to help myself with organization
     def __init__(self):
         super().__init__()
         layout = QHBoxLayout()
@@ -29,7 +43,7 @@ class SourceWidget(QWidget):
         layout.addWidget(self.sources_line)
 
 
-class FilterWidget(QWidget):
+class FilterWidget(QWidget):  # a compound widget for the filter/wavelength selection
     def __init__(self):
         super().__init__()
         outer_layout = QHBoxLayout()
@@ -43,7 +57,7 @@ class FilterWidget(QWidget):
 
         self.wavelength_groups = {}
 
-        for wl in wavelengths:
+        for wl in wavelengths:  # creates a widget group for each wavelength
             wl_layout = QVBoxLayout()
             wl_groupbox = QGroupBox(wl[0])
             wl_groupbox.setCheckable(True)
@@ -57,8 +71,8 @@ class FilterWidget(QWidget):
             self.wavelength_groups[wl_groupbox.title()] = [wl_groupbox, wl_combobox]
 
 
-class FilesWidget(QWidget):
-    files = {}
+class FilesWidget(QWidget):  # a compound widget for the file loader
+    files = {}  # list of files loaded
 
     def __init__(self):
         super().__init__()
@@ -80,24 +94,17 @@ class FilesWidget(QWidget):
         outer_layout.addWidget(self.file_table)
         outer_layout.addWidget(select_files_button)
 
-    def file_dialog(self):
+    def file_dialog(self):  # prompts user for either .csv or .lc files
         dialog = QFileDialog()
         file_names, _ = dialog.getOpenFileNames(filter="Data Files (*.csv *.lc)")
         if file_names:
             for file_name in file_names:
+                # if a file is selected that isn't already in the files dict, it adds the file and makes a new row
                 if file_name not in self.files:
                     self.add_file(file_name)
                     self.make_row(file_name)
 
-    def make_row(self, file):
-        row_count = self.file_table.rowCount()
-        self.file_table.insertRow(row_count)
-        self.file_table.setCellWidget(row_count, 0, QLabel(file))
-        self.file_table.setCellWidget(row_count, 1, self.files[file][0])
-        self.file_table.setCellWidget(row_count, 2, self.files[file][1])
-        self.file_table.setCellWidget(row_count, 3, self.files[file][2])
-
-    def add_file(self, file):
+    def add_file(self, file):  # adds a file to the widget's dict of files, with the file's associated widgets
         telescope_line = QLineEdit()
         highlight_check = QCheckBox()
         symbols_combobox = QComboBox()
@@ -107,8 +114,16 @@ class FilesWidget(QWidget):
         symbols_combobox.setCurrentIndex(0)
         self.files[file] = [telescope_line, symbols_combobox, highlight_check]
 
+    def make_row(self, file):  # adds a row to the graph
+        row_count = self.file_table.rowCount()
+        self.file_table.insertRow(row_count)
+        self.file_table.setCellWidget(row_count, 0, QLabel(file))
+        self.file_table.setCellWidget(row_count, 1, self.files[file][0])
+        self.file_table.setCellWidget(row_count, 2, self.files[file][1])
+        self.file_table.setCellWidget(row_count, 3, self.files[file][2])
 
-class GridWidget(QWidget):
+
+class GridWidget(QWidget):  # a compound widget for the grid toggle, just to help myself with organization
     def __init__(self):
         super().__init__()
         layout = QHBoxLayout()
@@ -117,7 +132,7 @@ class GridWidget(QWidget):
         layout.addWidget(self.grid_check)
 
 
-class ErrorWidget(QWidget):
+class ErrorWidget(QWidget):  # a compound widget for the error toggle, just to help myself with organization
     def __init__(self):
         super().__init__()
         layout = QHBoxLayout()
@@ -126,7 +141,7 @@ class ErrorWidget(QWidget):
         layout.addWidget(self.error_check)
 
 
-class LegendWidget(QWidget):
+class LegendWidget(QWidget):  # a compound widget for the legend options
     def __init__(self):
         super().__init__()
         legend_options = ["Best", "Top Left", "Top Right", "Bottom Left", "Bottom Right", "None"]
@@ -136,13 +151,13 @@ class LegendWidget(QWidget):
         self.legend_combo.addItems(legend_options)
         self.legend_combo.setCurrentIndex(0)
         layout.addWidget(self.legend_combo)
-        layout.addWidget(QLabel(""))
+        layout.addWidget(QLabel(""))  # this rubbish is just to help out the spacing in the form layout
         layout.addWidget(QLabel(""))
         layout.addWidget(QLabel(""))
         layout.addWidget(QLabel(""))
 
 
-class Window(QWidget):
+class Window(QWidget):  # the application window
     def __init__(self):
         super().__init__()
         self.setWindowTitle("AGN Magic!")
@@ -169,37 +184,37 @@ class Window(QWidget):
         self.setLayout(form_layout)
 
 
-class Controller:
+class Controller:  # I decided to go with a MVC implementation, so the Window is the view, and graph.py is the model
     def __init__(self, view):
-        def model():
+        def model():  # this is so that i can connect it to the button, i know it's annoying...
             self.make_graph()
 
-        def load_config():
+        def load_config():  # this is so that i can connect it to the button, i know it's annoying...
             self.load_config()
 
         self.view = view
-        self.view.create_graph_button.clicked.connect(model)
-        self.view.load_config_button.clicked.connect(load_config)
+        self.view.create_graph_button.clicked.connect(model)  # create graph button
+        self.view.load_config_button.clicked.connect(load_config)  # reload config button
 
-    def write_json(self):
+    def write_json(self):  # this writes to config.json
         wavelengths = self.view.filter_widget.wavelength_groups
         checked_wavelengths = {}
-        for wl in wavelengths:
+        for wl in wavelengths:  # loops through every wavelength and adds it and its color to a dict if it is checked
             if wavelengths[wl][0].isChecked():
                 checked_wavelengths[wl] = str(wavelengths[wl][1].currentText())
 
         files = self.view.files_widget.files
         files_info = {}
-        for file in files:
+        for file in files:  # loops through every file in file list and adds it and its associated attributes to a dict
             files_info[file] = []
-            if files[file][0].text() != "":
+            if files[file][0].text() != "":  # checks if file has name and puts it in files_info[file][0]
                 files_info[file].append(files[file][0].text())
             else:
                 print("File " + file + " not given name.")
-            files_info[file].append(files[file][2].isChecked())
-            files_info[file].append(files[file][1].currentText())
+            files_info[file].append(files[file][2].isChecked())  # is the file highlighted ("primary telescope")
+            files_info[file].append(files[file][1].currentText())  # selected file marker
 
-        out_dict = {"sources": self.view.sources_line.sources_line.text().split(", "),
+        out_dict = {"sources": self.view.sources_line.sources_line.text().split(", "),  # output dictionary
                     "grid": self.view.grid_check.grid_check.isChecked(),
                     "error": self.view.error_check.error_check.isChecked(),
                     "legend": self.view.legend_combo.legend_combo.currentText(),
@@ -207,20 +222,21 @@ class Controller:
                     "files": files_info
                     }
 
-        if out_dict["sources"] == [""]:
+        if out_dict["sources"] == [""]:  # checks to see if everything that needs to be filled in has been
             print("No sources given!")
         if out_dict["wavelengths"] == {}:
             print("No filters selected!")
         if out_dict["files"] == {}:
             print("No files loaded!")
 
-        with open("config.json", "w") as output:
+        with open("config.json", "w") as output:  # writes the output dictionary to config.json
             json.dump(out_dict, output)
 
-    def load_config(self):
-        with open("config.json") as config_file:
+    def load_config(self):  # this is to load the most recent config, basically the opposite of write_json()
+        with open("config.json") as config_file:  # opens config file
             config = json.load(config_file)
 
+        # fills out GUI based off of the config.json
         source_list = ""
         source_num = 1
         for source in config["sources"]:
@@ -228,33 +244,33 @@ class Controller:
             if source_num < len(config["sources"]):
                 source_list += ", "
                 source_num += 1
-        self.view.sources_line.sources_line.setText(source_list)
+        self.view.sources_line.sources_line.setText(source_list)  # writes source list
 
-        if config["grid"]:
+        if config["grid"]:  # toggles grid
             self.view.grid_check.grid_check.setChecked(True)
         else:
             self.view.grid_check.grid_check.setChecked(False)
 
-        if config["error"]:
+        if config["error"]:  # toggles error
             self.view.error_check.error_check.setChecked(True)
         else:
             self.view.error_check.error_check.setChecked(False)
 
         legend = config["legend"]
         legend_options = ["Best", "Top Left", "Top Right", "Bottom Left", "Bottom Right", "None"]
-        self.view.legend_combo.legend_combo.setCurrentIndex(legend_options.index(legend))
+        self.view.legend_combo.legend_combo.setCurrentIndex(legend_options.index(legend))  # sets legend choice
 
         wavelength_widgets = self.view.filter_widget.wavelength_groups
         wavelengths = config["wavelengths"]
         color_options = ["Red", "Orange", "Yellow", "Olive", "Green", "Cyan", "Blue", "Purple", "Pink", "Brown", "Gray"]
         for wl in wavelength_widgets:
             if wl.title() in wavelengths:
-                wavelength_widgets[wl][0].setChecked(True)
+                wavelength_widgets[wl][0].setChecked(True)  # toggles wavelengths then sets selected color
                 wavelength_widgets[wl][1].setCurrentIndex(color_options.index(wavelengths[wl.title()]))
 
-        file_table = self.view.files_widget.file_table
+        file_table = self.view.files_widget.file_table  # grabs the file table from the file widget
         files = {}
-        for file in config["files"]:
+        for file in config["files"]:  # loops through the files in config, builds a row
             telescope_line = QLineEdit()
             highlight_check = QCheckBox()
             symbols_combobox = QComboBox()
@@ -269,7 +285,7 @@ class Controller:
 
             files[file] = [telescope_line, symbols_combobox, highlight_check]
 
-        for f in files:
+        for f in files:  # adds the row to the file table
             row_count = file_table.rowCount()
             file_table.insertRow(row_count)
             file_table.setCellWidget(row_count, 0, QLabel(f))
@@ -277,15 +293,15 @@ class Controller:
             file_table.setCellWidget(row_count, 2, files[f][1])
             file_table.setCellWidget(row_count, 3, files[f][2])
 
-        self.view.files_widget.files = files
+        self.view.files_widget.files = files  # sets the file widget's file dict to config's
 
-    def make_graph(self):
+    def make_graph(self):  # writes to the json, calls graph.py on it, then closes window
         self.write_json()
         graph_main("config.json")
         self.view.close()
 
 
-def main():
+def main():  # main, sets up the application window and MVC
     app = QApplication(sys.argv)
     view = Window()
     view.show()
