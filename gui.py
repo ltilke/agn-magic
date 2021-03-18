@@ -91,8 +91,18 @@ class FilesWidget(QWidget):  # a compound widget for the file loader
         select_files_button = QPushButton("Select Files")
         select_files_button.clicked.connect(self.file_dialog)
 
+        remove_file_button = QPushButton("Remove File")
+        remove_file_button.clicked.connect(self.remove_file)
+
         outer_layout.addWidget(self.file_table)
         outer_layout.addWidget(select_files_button)
+        outer_layout.addWidget(remove_file_button)
+
+    def remove_file(self):
+        selected = self.file_table.currentRow()
+        del self.files[list(self.files)[selected]]
+        print(self.files)
+        self.file_table.removeRow(selected)
 
     def file_dialog(self):  # prompts user for either .csv or .lc files
         dialog = QFileDialog()
