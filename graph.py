@@ -134,84 +134,84 @@ def make_plot(data: {}, config):  # this is what actually makes the plot, takes 
     if len(data) >= 1:  # checks if there is actually data to graph
         # noinspection PyTypeChecker
         fig, axs = plt.subplots(len(data), sharex=True)
+
+        ax_num = 0
+
+        filters = ["B", "V", "R", "I", "G"]
+        ordered_data = {k: data[k] for k in filters if k in data}  # makes sure that subplots are stacked consistently
+
+        for wavelength in ordered_data:
+            if len(ordered_data) == 1:  # if there is only one plot to graph
+                if config["grid"]:  # adds grid if true in config
+                    axs.grid(color="tab:gray", which="major", linestyle="--", linewidth=0.25)
+                    axs.grid(color="tab:gray", which="minor", linestyle="--", linewidth=0.15)
+                    axs.minorticks_on()
+
+                for dataset in ordered_data[wavelength]:  # creates a scatter plot for the wavelength's DataSets
+                    axs.scatter(x=dataset.time_mjd,
+                                y=dataset.y_data,
+                                s=dataset.size,
+                                color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
+                                label=dataset.label,
+                                )
+
+                    if config["error"]:  # adds error bars if true in config
+                        axs.errorbar(x=dataset.time_mjd,
+                                     y=dataset.y_data,
+                                     yerr=dataset.error,
+                                     color=dataset.color, alpha=dataset.alpha,
+                                     linestyle="None"
+                                     )
+
+                    if dataset.filetype == ".csv":  # for a csv file, y data is measured in mag
+                        axs.set_ylabel(wavelength + " [mag]")
+
+                    if get_legend_location(config) != "none":  # sets the legend location from config
+                        axs.legend(loc=get_legend_location(config))
+
+                axs.set_xlabel("MJD [JD - 2450000]")  # x axis label
+                axs.figure.show()  # shows graph
+
+            else:  # if there's more than one plot to graph, axs --> axs[ax_num], and ax_num increments
+                if config["grid"]:  # adds grid if true in config
+                    axs[ax_num].grid(color="tab:gray", which="major", linestyle="--", linewidth=0.25)
+                    axs[ax_num].grid(color="tab:gray", which="minor", linestyle="--", linewidth=0.15)
+                    axs[ax_num].minorticks_on()
+
+                for dataset in ordered_data[wavelength]:  # creates a scatter plot for the wavelength's DataSets
+                    axs[ax_num].scatter(x=dataset.time_mjd,
+                                        y=dataset.y_data,
+                                        s=dataset.size,
+                                        color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
+                                        label=dataset.label,
+                                        )
+
+                    if config["error"]:  # adds error bars if true in config
+                        axs[ax_num].errorbar(x=dataset.time_mjd,
+                                             y=dataset.y_data,
+                                             yerr=dataset.error,
+                                             color=dataset.color, alpha=dataset.alpha,
+                                             linestyle="None"
+                                             )
+
+                    if dataset.filetype == ".csv":  # for a csv file, y data is measured in mag
+                        axs[ax_num].set_ylabel(wavelength + " [mag]")
+
+                    if get_legend_location(config) != "none":  # sets the legend location from config
+                        axs[ax_num].legend(loc=get_legend_location(config))
+
+                axs[ax_num].set_xlabel("MJD [JD - 2450000]")  # x axis label
+                axs[ax_num].figure.show()  # shows graph
+                ax_num += 1  # increments ax_num
+
+        for ax in range(ax_num):  # inverts the y axis for any graphs measured in mag
+            if "[mag]" in axs[ax].get_ylabel():
+                axs[ax].invert_yaxis()
+
+        plt.subplots_adjust(hspace=0)  # gets rid of gap between subplots
+        plt.show()  # shows plot
     else:  # prints an error message if there's nothing to graph
         print("No data found! Check source name.")
-
-    ax_num = 0
-
-    filters = ["B", "V", "R", "I", "G"]
-    ordered_data = {k: data[k] for k in filters if k in data}  # makes sure that the subplots are stacked consistently
-
-    for wavelength in ordered_data:
-        if len(ordered_data) == 1:  # if there is only one plot to graph
-            if config["grid"]:  # adds grid if true in config
-                axs.grid(color="tab:gray", which="major", linestyle="--", linewidth=0.25)
-                axs.grid(color="tab:gray", which="minor", linestyle="--", linewidth=0.15)
-                axs.minorticks_on()
-
-            for dataset in ordered_data[wavelength]:  # creates a scatter plot for the wavelength's DataSets
-                axs.scatter(x=dataset.time_mjd,
-                            y=dataset.y_data,
-                            s=dataset.size,
-                            color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
-                            label=dataset.label,
-                            )
-
-                if config["error"]:  # adds error bars if true in config
-                    axs.errorbar(x=dataset.time_mjd,
-                                 y=dataset.y_data,
-                                 yerr=dataset.error,
-                                 color=dataset.color, alpha=dataset.alpha,
-                                 linestyle="None"
-                                 )
-
-                if dataset.filetype == ".csv":  # for a csv file, y data is measured in mag
-                    axs.set_ylabel(wavelength + " [mag]")
-
-                if get_legend_location(config) != "none":  # sets the legend location from config
-                    axs.legend(loc=get_legend_location(config))
-
-            axs.set_xlabel("MJD [JD - 2450000]")  # x axis label
-            axs.figure.show()  # shows graph
-
-        else:  # if there's more than one plot to graph, only difference is axs --> axs[ax_num], and ax_num increments
-            if config["grid"]:  # adds grid if true in config
-                axs[ax_num].grid(color="tab:gray", which="major", linestyle="--", linewidth=0.25)
-                axs[ax_num].grid(color="tab:gray", which="minor", linestyle="--", linewidth=0.15)
-                axs[ax_num].minorticks_on()
-
-            for dataset in ordered_data[wavelength]:  # creates a scatter plot for the wavelength's DataSets
-                axs[ax_num].scatter(x=dataset.time_mjd,
-                                    y=dataset.y_data,
-                                    s=dataset.size,
-                                    color=dataset.color, marker=dataset.marker, alpha=dataset.alpha,
-                                    label=dataset.label,
-                                    )
-
-                if config["error"]:  # adds error bars if true in config
-                    axs[ax_num].errorbar(x=dataset.time_mjd,
-                                         y=dataset.y_data,
-                                         yerr=dataset.error,
-                                         color=dataset.color, alpha=dataset.alpha,
-                                         linestyle="None"
-                                         )
-
-                if dataset.filetype == ".csv":  # for a csv file, y data is measured in mag
-                    axs[ax_num].set_ylabel(wavelength + " [mag]")
-
-                if get_legend_location(config) != "none":  # sets the legend location from config
-                    axs[ax_num].legend(loc=get_legend_location(config))
-
-            axs[ax_num].set_xlabel("MJD [JD - 2450000]")  # x axis label
-            axs[ax_num].figure.show()  # shows graph
-            ax_num += 1  # increments ax_num
-
-    for ax in range(ax_num):  # inverts the y axis for any graphs measured in mag
-        if "[mag]" in axs[ax].get_ylabel():
-            axs[ax].invert_yaxis()
-
-    plt.subplots_adjust(hspace=0)  # gets rid of gap between subplots
-    plt.show()  # shows plot
 
 
 def main(config_file):  # main, is fed config file from gui.py
