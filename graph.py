@@ -17,6 +17,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from astropy.table import Table
+import numpy as np
 
 
 def get_color(color):  # returns the string that matplotlib understands, from the more human-readable input
@@ -182,6 +183,7 @@ def make_plot(data: {}, config):  # this is what actually makes the plot, takes 
 
                     if dataset.filetype == ".lc":  # units for a lc file
                         axs.set_ylabel(r"Gamma$\ [10^{-5}\ ph\ s^{-1}\ cm^{-2}]$")
+                        axs.set_ylim(0, np.max(dataset.y_data) + 0.5)
 
                     if get_legend_location(config) != "none":  # sets the legend location from config
                         axs.legend(loc=get_legend_location(config))
@@ -216,6 +218,7 @@ def make_plot(data: {}, config):  # this is what actually makes the plot, takes 
 
                     if dataset.filetype == ".lc":  # units for a lc file
                         axs[ax_num].set_ylabel(r"Gamma$\ [10^{-5}\ ph\ s^{-1}\ cm^{-2}]$")
+                        axs[ax_num].set_ylim(0, np.max(dataset.y_data) + 0.5)
 
                     if get_legend_location(config) != "none":  # sets the legend location from config
                         axs[ax_num].legend(loc=get_legend_location(config))
