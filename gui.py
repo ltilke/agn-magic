@@ -53,7 +53,7 @@ class FilterWidget(QWidget):  # a compound widget for the filter/wavelength sele
 
         wavelengths = [["B", color_options.index("Blue")], ["V", color_options.index("Green")],
                        ["R", color_options.index("Red")], ["I", color_options.index("Gray")],
-                       ["G (Unavailable)", color_options.index("Purple")]]
+                       ["G", color_options.index("Purple")]]
 
         self.wavelength_groups = {}
 

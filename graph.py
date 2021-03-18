@@ -16,6 +16,7 @@ import json
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from astropy.table import Table
 
 
 def get_color(color):  # returns the string that matplotlib understands, from the more human-readable input
@@ -84,6 +85,8 @@ class DataSet:  # a DataSet is created for each file, each source, and each wave
 
     label = ""  # the DataSet's label for the graph legend
 
+    is_valid = False
+
     # initializer, takes source, wavelength, file, and the config json as inputs
     def __init__(self, source, wavelength, file, config):
         self.source = source
@@ -120,9 +123,19 @@ class DataSet:  # a DataSet is created for each file, each source, and each wave
 
                 error = csv[self.source + " : Error"]
                 self.error = error  # sets the error array to the source's error column
+                self.is_valid = True
 
-        elif self.filetype == ".lc":  # haven't quite gotten around to .lc files yet, but it's on my radar!
-            print(".lc files are not yet supported.")
+        elif self.filetype == ".lc":  # special thanks to Nik Korzoun, adapted from AGN Wizard into AGN Magic
+            if self.wavelength == "G":
+                data = Table.read(file)
+                time = data['START']
+                time_mjd = (time / 60 / 60 / 24) + 2451910.5 - 2450000
+                self.time_mjd = time_mjd
+                raw_flux = data['FLUX_100_300000']
+                flux = raw_flux * 100000
+                self.y_data = flux
+                self.error = data['ERROR_100_300000'] * 100000
+                self.is_valid = True
 
         else:  # unrecognized file type, just in case
             print("Unknown file type: " + self.filetype + ".")
@@ -166,6 +179,9 @@ def make_plot(data: {}, config):  # this is what actually makes the plot, takes 
                     if dataset.filetype == ".csv":  # for a csv file, y data is measured in mag
                         axs.set_ylabel(wavelength + " [mag]")
 
+                    if dataset.filetype == ".lc":  # units for a lc file
+                        axs.set_ylabel(r"Gamma$\ [10^{-5}\ ph\ s^{-1}\ cm^{-2}]$")
+
                     if get_legend_location(config) != "none":  # sets the legend location from config
                         axs.legend(loc=get_legend_location(config))
 
@@ -197,6 +213,9 @@ def make_plot(data: {}, config):  # this is what actually makes the plot, takes 
                     if dataset.filetype == ".csv":  # for a csv file, y data is measured in mag
                         axs[ax_num].set_ylabel(wavelength + " [mag]")
 
+                    if dataset.filetype == ".lc":  # units for a lc file
+                        axs[ax_num].set_ylabel(r"Gamma$\ [10^{-5}\ ph\ s^{-1}\ cm^{-2}]$")
+
                     if get_legend_location(config) != "none":  # sets the legend location from config
                         axs[ax_num].legend(loc=get_legend_location(config))
 
@@ -210,6 +229,7 @@ def make_plot(data: {}, config):  # this is what actually makes the plot, takes 
 
         plt.subplots_adjust(hspace=0)  # gets rid of gap between subplots
         plt.show()  # shows plot
+
     else:  # prints an error message if there's nothing to graph
         print("No data found! Check source name.")
 
@@ -225,7 +245,7 @@ def main(config_file):  # main, is fed config file from gui.py
         for source in config["sources"]:  # for every source in source list
             for file in config["files"]:  # for every file in file list
                 dataset = DataSet(source, wavelength, file, config)  # creates a DataSet
-                if dataset.time_mjd:  # this is my check right now to make sure we're only plotting DataSets with values
+                if dataset.is_valid:  # checks to make sure we're only plotting valid DataSets
                     data[wavelength].append(dataset)
 
     # gets rid of any wavelengths that were selected but have no data
