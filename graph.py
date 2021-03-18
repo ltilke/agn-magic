@@ -123,7 +123,8 @@ class DataSet:  # a DataSet is created for each file, each source, and each wave
 
                 error = csv[self.source + " : Error"]
                 self.error = error  # sets the error array to the source's error column
-                self.is_valid = True
+                if not self.y_data.empty:
+                    self.is_valid = True
 
         elif self.filetype == ".lc":  # special thanks to Nik Korzoun, adapted from AGN Wizard into AGN Magic
             if self.wavelength == "G":
@@ -228,7 +229,6 @@ def make_plot(data: {}, config):  # this is what actually makes the plot, takes 
                 axs[ax].invert_yaxis()
 
         plt.subplots_adjust(hspace=0)  # gets rid of gap between subplots
-        plt.show()  # shows plot
 
     else:  # prints an error message if there's nothing to graph
         print("No data found! Check source name.")

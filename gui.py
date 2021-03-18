@@ -88,7 +88,7 @@ class FilesWidget(QWidget):  # a compound widget for the file loader
         file_table_header.setSectionResizeMode(2, QHeaderView.Stretch)
         file_table_header.setSectionResizeMode(3, QHeaderView.Stretch)
 
-        select_files_button = QPushButton("Select Files")
+        select_files_button = QPushButton("Add File(s)")
         select_files_button.clicked.connect(self.file_dialog)
 
         remove_file_button = QPushButton("Remove File")
@@ -98,10 +98,9 @@ class FilesWidget(QWidget):  # a compound widget for the file loader
         outer_layout.addWidget(select_files_button)
         outer_layout.addWidget(remove_file_button)
 
-    def remove_file(self):
+    def remove_file(self):  # removes a file from the files dict and the table
         selected = self.file_table.currentRow()
         del self.files[list(self.files)[selected]]
-        print(self.files)
         self.file_table.removeRow(selected)
 
     def file_dialog(self):  # prompts user for either .csv or .lc files
@@ -216,13 +215,13 @@ class Controller:  # I decided to go with a MVC implementation, so the Window is
         files = self.view.files_widget.files
         files_info = {}
         for file in files:  # loops through every file in file list and adds it and its associated attributes to a dict
-            files_info[file] = []
+            files_info[file] = ["", False, ""]
             if files[file][0].text() != "":  # checks if file has name and puts it in files_info[file][0]
-                files_info[file].append(files[file][0].text())
+                files_info[file][0] = files[file][0].text()
             else:
                 print("File " + file + " not given name.")
-            files_info[file].append(files[file][2].isChecked())  # is the file highlighted ("primary telescope")
-            files_info[file].append(files[file][1].currentText())  # selected file marker
+            files_info[file][1] = files[file][2].isChecked()  # is the file highlighted ("primary telescope")
+            files_info[file][2] = files[file][1].currentText()  # selected file marker
 
         out_dict = {"sources": self.view.sources_line.sources_line.text().split(", "),  # output dictionary
                     "grid": self.view.grid_check.grid_check.isChecked(),
