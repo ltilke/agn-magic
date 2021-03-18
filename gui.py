@@ -32,6 +32,7 @@ from PyQt5.QtWidgets import (
     QTableWidget,
     QHeaderView
 )
+from PyQt5 import QtGui
 
 
 class SourceWidget(QWidget):  # a compound widget for the source line edit, just to help myself with organization
@@ -312,6 +313,7 @@ class Controller:  # I decided to go with a MVC implementation, so the Window is
 
 def main():  # main, sets up the application window and MVC
     app = QApplication(sys.argv)
+    app.setWindowIcon(QtGui.QIcon("galaxy_icon.png"))
     view = Window()
     view.show()
     Controller(view=view)

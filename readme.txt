@@ -59,3 +59,6 @@ How to Use:
 
         Note: the true/false in config["files"][file][1] is the indicator for whether or not that file is highlighted
         / a "primary telescope."
+
+Special thanks to Nik Korzoun for his work with AGN_Wizard
+Galaxy by CombineDesign from the Noun Project
