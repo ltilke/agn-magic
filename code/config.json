@@ -1,0 +1,1 @@
+{"sources": ["OJ287"], "grid": true, "error": true, "legend": "Best", "wavelengths": {"V": "Green", "R": "Red", "G": "Purple"}, "files": {"C:/Users/lanat/Documents/Data/OJ287/OJ287 Photometry V+R.csv": ["SRO20", true, "Point"], "C:/Users/lanat/Documents/Data/OJ287/OJ287_86400.lc": ["Fermi-LAT", true, "Point"]}}
