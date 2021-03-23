@@ -44,8 +44,8 @@ How to Use:
             "C:\\*\\file2.csv": ["Telescope2", true/false, "Symbol2"]
           },
 
-          "grid": true/fals,
-          "error": true/fals,
+          "grid": true/false,
+          "error": true/false,
           "legend": "LegendLocation"
         }
 
