@@ -30,7 +30,8 @@ from PyQt5.QtWidgets import (
     QGroupBox,
     QFileDialog,
     QTableWidget,
-    QHeaderView
+    QHeaderView,
+    QSystemTrayIcon
 )
 from PyQt5 import QtGui
 
@@ -313,7 +314,8 @@ class Controller:  # I decided to go with a MVC implementation, so the Window is
 
 def main():  # main, sets up the application window and MVC
     app = QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon("galaxy_icon.png"))
+    icon = QtGui.QIcon("galaxy_icon.ico")
+    app.setWindowIcon(icon)
     view = Window()
     view.show()
     Controller(view=view)
