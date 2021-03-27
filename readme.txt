@@ -2,8 +2,7 @@ AGN Magic - by Lana Tilke
 Last Updated: March 16, 2021
 
 How to Use:
-    Essentially, you provide the input to the GUI, and the GUI writes that input to a config.json file, which is then
-    fed into the graphing application.
+    Essentially, you provide the input to the GUI, and the GUI writes that input to a config.json file, which is then fed into the graphing application. Start by running agn_magic.py.
 
     .csv
         Required headers:   source + " : Magnitude (Centroid)"
